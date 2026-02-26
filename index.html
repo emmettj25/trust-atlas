@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trust Atlas</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sidebar-w: 228px;
+      --sidebar-bg: #0d0d0d;
+      --sidebar-border: #1f1f1f;
+      --sidebar-text: #8a8a8a;
+      --sidebar-text-hover: #e8e8e8;
+      --sidebar-active-bg: #1a1a1a;
+      --sidebar-active-text: #ffffff;
+      --main-bg: #ffffff;
+      --main-border: #e8e8e8;
+      --accent: #0066ff;
+      --accent-light: #e8f0ff;
+      --text-primary: #0d0d0d;
+      --text-secondary: #6b6b6b;
+      --text-tertiary: #a0a0a0;
+      --row-hover: #f8f8f8;
+      --star-active: #f59e0b;
+      --radius: 8px;
+      --font: 'Geist', -apple-system, sans-serif;
+      --font-mono: 'Geist Mono', monospace;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      background: var(--main-bg);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Layout ── */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-width: var(--sidebar-w);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      display: flex;
+      flex-direction: column;
+      padding: 0;
+      overflow-y: auto;
+      scrollbar-width: none;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    .sidebar-logo {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--sidebar-border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+    }
+    .logo-mark {
+      width: 26px; height: 26px;
+      background: var(--accent);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-mark svg { width: 14px; height: 14px; }
+    .logo-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+    }
+
+    .sidebar-section { padding: 20px 8px 6px; }
+    .sidebar-section-label {
+      font-size: 10.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #444;
+      padding: 0 8px;
+      margin-bottom: 4px;
+    }
+
+    .nav-item {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13.5px;
+      color: var(--sidebar-text);
+      transition: background 0.12s, color 0.12s;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .nav-item:hover { background: var(--sidebar-active-bg); color: var(--sidebar-text-hover); }
+    .nav-item.active { background: var(--sidebar-active-bg); color: var(--sidebar-active-text); }
+    .nav-item svg { width: 15px; height: 15px; opacity: 0.7; flex-shrink: 0; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-badge {
+      margin-left: auto;
+      background: #1f1f1f;
+      color: #666;
+      font-size: 10.5px;
+      font-family: var(--font-mono);
+      padding: 1px 6px;
+      border-radius: 999px;
+    }
+
+    .sidebar-divider {
+      height: 1px;
+      background: var(--sidebar-border);
+      margin: 10px 8px;
+    }
+
+    .sidebar-bottom {
+      margin-top: auto;
+      padding: 12px 8px;
+      border-top: 1px solid var(--sidebar-border);
+    }
+    .sidebar-bottom .nav-item { color: var(--sidebar-text); }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--main-bg);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 64px 56px 40px;
+      border-bottom: 1px solid var(--main-border);
+    }
+    .hero-eyebrow {
+      font-size: 11.5px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+    .hero-title {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+    .hero-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 24px;
+      font-weight: 400;
+    }
+
+    .search-wrap { position: relative; max-width: 540px; }
+    .search-icon {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+    .search-icon svg { width: 16px; height: 16px; display: block; }
+    .search-input {
+      width: 100%;
+      height: 42px;
+      border: 1.5px solid var(--main-border);
+      border-radius: var(--radius);
+      background: #fafafa;
+      padding: 0 16px 0 42px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+    }
+    .search-input::placeholder { color: var(--text-tertiary); }
+    .search-input:focus {
+      border-color: var(--accent);
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.08);
+    }
+    .search-count {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 11.5px;
+      font-family: var(--font-mono);
+      color: var(--text-tertiary);
+      pointer-events: none;
+    }
+
+    /* Table area */
+    .table-area { flex: 1; overflow-y: auto; padding: 0 56px 40px; }
+    .table-area::-webkit-scrollbar { width: 4px; }
+    .table-area::-webkit-scrollbar-track { background: transparent; }
+    .table-area::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+
+    .table-header {
+      display: flex;
+      align-items: center;
+      padding: 12px 0 8px;
+      border-bottom: 1px solid var(--main-border);
+      position: sticky; top: 0; background: var(--main-bg);
+      z-index: 2;
+    }
+    .col-fav { width: 40px; text-align: center; flex-shrink: 0; }
+    .col-name { flex: 1; min-width: 0; }
+    .col-url { flex: 1.4; min-width: 0; }
+    .col-visit { width: 80px; flex-shrink: 0; text-align: right; }
+
+    .th {
+      font-size: 11px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+    }
+
+    .trust-row {
+      display: flex;
+      align-items: center;
+      padding: 13px 0;
+      border-bottom: 1px solid #f3f3f3;
+      transition: background 0.1s;
+      border-radius: 6px;
+      cursor: default;
+      animation: fadeIn 0.2s ease both;
+    }
+    .trust-row:hover { background: var(--row-hover); }
+    .trust-row:hover .col-fav { opacity: 1; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+
+    .col-fav { opacity: 0.4; transition: opacity 0.1s; }
+    .trust-row:hover .col-fav, .trust-row .col-fav.starred { opacity: 1; }
+
+    .star-btn {
+      background: none; border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 5px;
+      transition: background 0.12s;
+      margin: 0 auto;
+    }
+    .star-btn:hover { background: #f0f0f0; }
+    .star-btn svg { width: 15px; height: 15px; transition: fill 0.15s, stroke 0.15s; }
+    .star-btn.starred svg { fill: var(--star-active); stroke: var(--star-active); }
+    .star-btn:not(.starred) svg { fill: none; stroke: #ccc; }
+
+    .company-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 16px;
+    }
+    .trust-url {
+      font-size: 12.5px;
+      font-family: var(--font-mono);
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 16px;
+    }
+
+    .visit-btn {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      text-decoration: none;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid transparent;
+      transition: border-color 0.12s, background 0.12s;
+      white-space: nowrap;
+      margin-left: auto;
+    }
+    .visit-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-light);
+    }
+
+    .empty-state {
+      padding: 64px 0;
+      text-align: center;
+      color: var(--text-tertiary);
+      font-size: 14px;
+    }
+    .empty-state strong { display: block; font-size: 16px; color: var(--text-secondary); margin-bottom: 6px; font-weight: 500; }
+
+    /* ── Modal ── */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.35);
+      backdrop-filter: blur(2px);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.18s;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 460px;
+      max-width: calc(100vw - 32px);
+      padding: 28px 28px 24px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.14), 0 4px 16px rgba(0,0,0,0.08);
+      transform: translateY(10px) scale(0.98);
+      transition: transform 0.18s;
+    }
+    .modal-overlay.open .modal { transform: none; }
+    .modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+    .modal-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 22px; }
+
+    .field { margin-bottom: 16px; }
+    .field label { display: block; font-size: 12px; font-weight: 500; color: var(--text-secondary); margin-bottom: 6px; }
+    .field input {
+      width: 100%;
+      height: 38px;
+      border: 1.5px solid var(--main-border);
+      border-radius: 7px;
+      padding: 0 12px;
+      font-family: var(--font);
+      font-size: 14px;
+      color: var(--text-primary);
+      outline: none;
+      transition: border-color 0.15s;
+      background: #fafafa;
+    }
+    .field input:focus { border-color: var(--accent); background: #fff; }
+    .field input::placeholder { color: var(--text-tertiary); }
+
+    .modal-actions { display: flex; gap: 8px; margin-top: 24px; justify-content: flex-end; }
+    .btn-ghost {
+      background: none; border: 1.5px solid var(--main-border);
+      border-radius: 7px; padding: 0 16px; height: 36px;
+      font-family: var(--font); font-size: 13.5px; font-weight: 500;
+      cursor: pointer; color: var(--text-secondary);
+      transition: border-color 0.12s, color 0.12s;
+    }
+    .btn-ghost:hover { border-color: #bbb; color: var(--text-primary); }
+    .btn-primary {
+      background: var(--accent); border: none;
+      border-radius: 7px; padding: 0 18px; height: 36px;
+      font-family: var(--font); font-size: 13.5px; font-weight: 600;
+      cursor: pointer; color: #fff;
+      transition: background 0.12s, transform 0.1s;
+    }
+    .btn-primary:hover { background: #0052cc; }
+    .btn-primary:active { transform: scale(0.98); }
+
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(12px);
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 200;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ───── Sidebar ───── -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-mark">
+        <svg viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M7 1L12.5 4V10L7 13L1.5 10V4L7 1Z" stroke="white" stroke-width="1.5" fill="none"/>
+          <circle cx="7" cy="7" r="2" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-name">Trust Atlas</span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Explore</div>
+      <div class="nav-item active" data-view="all" onclick="setView('all')">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5">
+          <rect x="1.5" y="1.5" width="5" height="5" rx="1"/>
+          <rect x="9.5" y="1.5" width="5" height="5" rx="1"/>
+          <rect x="1.5" y="9.5" width="5" height="5" rx="1"/>
+          <rect x="9.5" y="9.5" width="5" height="5" rx="1"/>
+        </svg>
+        All Trust Centers
+        <span class="nav-badge" id="all-count">0</span>
+      </div>
+      <div class="nav-item" data-view="favorites" onclick="setView('favorites')">
+        <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 2l1.8 3.6 4 .6-2.9 2.8.7 4L8 11l-3.6 1.9.7-4L2.2 6.2l4-.6L8 2z"/>
+        </svg>
+        Favorites
+        <span class="nav-badge" id="fav-count">0</span>
+      </div>
+    </div>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Contribute</div>
+      <div class="nav-item" onclick="openModal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="8" cy="8" r="6.25"/>
+          <path d="M8 5v6M5 8h6"/>
+        </svg>
+        Add Your Trust Center
+      </div>
+    </div>
+
+    <div class="sidebar-bottom">
+      <div class="nav-item" onclick="alert('Sharing coming soon!')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12.5" cy="3.5" r="1.5"/>
+          <circle cx="3.5" cy="8" r="1.5"/>
+          <circle cx="12.5" cy="12.5" r="1.5"/>
+          <path d="M5 8.75l5.5 3.25M10.5 4.25L5 7.25"/>
+        </svg>
+        Share Atlas
+      </div>
+    </div>
+  </aside>
+
+  <!-- ───── Main ───── -->
+  <main class="main">
+    <div class="hero">
+      <div class="hero-eyebrow">Security & Compliance</div>
+      <h1 class="hero-title">Find Any Trust Center</h1>
+      <p class="hero-sub">The world's directory of vendor trust and security pages.</p>
+      <div class="search-wrap">
+        <div class="search-icon">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="6.5" cy="6.5" r="4.75"/>
+            <path d="M10.5 10.5l3 3"/>
+          </svg>
+        </div>
+        <input
+          id="search"
+          class="search-input"
+          type="text"
+          placeholder="Search by company name or URL…"
+          oninput="renderRows()"
+          autocomplete="off"
+          spellcheck="false"
+        />
+        <span class="search-count" id="result-count"></span>
+      </div>
+    </div>
+
+    <div class="table-area">
+      <div class="table-header">
+        <div class="col-fav"></div>
+        <div class="col-name th">Company</div>
+        <div class="col-url th">Trust Center URL</div>
+        <div class="col-visit"></div>
+      </div>
+      <div id="list"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ───── Add Modal ───── -->
+<div class="modal-overlay" id="modal" onclick="handleOverlayClick(event)">
+  <div class="modal">
+    <div class="modal-title">Add a Trust Center</div>
+    <p class="modal-sub">Know a trust center that's missing? Add it to the Atlas.</p>
+    <div class="field">
+      <label>Company Name</label>
+      <input id="f-name" type="text" placeholder="e.g. Stripe" />
+    </div>
+    <div class="field">
+      <label>Trust Center URL</label>
+      <input id="f-url" type="text" placeholder="e.g. https://trust.stripe.com" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="submitEntry()">Add Trust Center</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ── Seed data ──
+  let entries = [
+    { id: 1,  name: 'Vanta',       url: 'https://trust.vanta.com' },
+    { id: 2,  name: 'Stripe',      url: 'https://trust.stripe.com' },
+    { id: 3,  name: 'AWS',         url: 'https://aws.amazon.com/compliance' },
+    { id: 4,  name: 'Google Cloud',url: 'https://cloud.google.com/security/compliance' },
+    { id: 5,  name: 'Microsoft Azure', url: 'https://servicetrust.microsoft.com' },
+    { id: 6,  name: 'Okta',        url: 'https://trust.okta.com' },
+    { id: 7,  name: 'Salesforce',  url: 'https://trust.salesforce.com' },
+    { id: 8,  name: 'Slack',       url: 'https://slack.com/trust' },
+    { id: 9,  name: 'GitHub',      url: 'https://trust.github.com' },
+    { id: 10, name: 'Zoom',        url: 'https://trust.zoom.us' },
+    { id: 11, name: 'Atlassian',   url: 'https://www.atlassian.com/trust' },
+    { id: 12, name: 'HubSpot',     url: 'https://trust.hubspot.com' },
+    { id: 13, name: 'Datadog',     url: 'https://trust.datadoghq.com' },
+    { id: 14, name: 'Snowflake',   url: 'https://trust.snowflake.com' },
+    { id: 15, name: 'Notion',      url: 'https://www.notion.so/trust' },
+    { id: 16, name: 'Linear',      url: 'https://linear.app/security' },
+    { id: 17, name: 'Rippling',    url: 'https://trust.rippling.com' },
+    { id: 18, name: 'Drata',       url: 'https://trust.drata.com' },
+  ];
+
+  let nextId = entries.length + 1;
+  let favorites = new Set(JSON.parse(localStorage.getItem('ta_favs') || '[]'));
+  let currentView = 'all';
+
+  function saveFavs() {
+    localStorage.setItem('ta_favs', JSON.stringify([...favorites]));
+  }
+
+  function toggleFav(id) {
+    if (favorites.has(id)) favorites.delete(id);
+    else favorites.add(id);
+    saveFavs();
+    renderRows();
+    updateCounts();
+  }
+
+  function updateCounts() {
+    document.getElementById('all-count').textContent = entries.length;
+    document.getElementById('fav-count').textContent = favorites.size;
+  }
+
+  function setView(v) {
+    currentView = v;
+    document.querySelectorAll('.nav-item[data-view]').forEach(el => {
+      el.classList.toggle('active', el.dataset.view === v);
+    });
+    document.getElementById('search').value = '';
+    renderRows();
+  }
+
+  function renderRows() {
+    const q = document.getElementById('search').value.trim().toLowerCase();
+    let list = currentView === 'favorites'
+      ? entries.filter(e => favorites.has(e.id))
+      : entries;
+
+    if (q) list = list.filter(e =>
+      e.name.toLowerCase().includes(q) || e.url.toLowerCase().includes(q)
+    );
+
+    const countEl = document.getElementById('result-count');
+    countEl.textContent = q ? `${list.length} result${list.length !== 1 ? 's' : ''}` : '';
+
+    const container = document.getElementById('list');
+    if (!list.length) {
+      container.innerHTML = `<div class="empty-state">
+        <strong>${currentView === 'favorites' ? 'No favorites yet' : 'No results found'}</strong>
+        ${currentView === 'favorites' ? 'Star a trust center to save it here.' : 'Try a different search term.'}
+      </div>`;
+      return;
+    }
+
+    container.innerHTML = list.map((e, i) => {
+      const starred = favorites.has(e.id);
+      return `<div class="trust-row" style="animation-delay:${i * 18}ms">
+        <div class="col-fav ${starred ? 'starred' : ''}">
+          <button class="star-btn ${starred ? 'starred' : ''}" onclick="toggleFav(${e.id})" title="${starred ? 'Remove from favorites' : 'Add to favorites'}">
+            <svg viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg" stroke-width="1.4">
+              <path d="M8 2l1.8 3.6 4 .6-2.9 2.8.7 4L8 11l-3.6 1.9.7-4L2.2 6.2l4-.6L8 2z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="col-name"><span class="company-name">${e.name}</span></div>
+        <div class="col-url"><span class="trust-url">${e.url}</span></div>
+        <div class="col-visit">
+          <a class="visit-btn" href="${e.url}" target="_blank" rel="noopener">Visit →</a>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Modal ──
+  function openModal() {
+    document.getElementById('modal').classList.add('open');
+    setTimeout(() => document.getElementById('f-name').focus(), 100);
+  }
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('f-name').value = '';
+    document.getElementById('f-url').value = '';
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modal')) closeModal();
+  }
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  function submitEntry() {
+    const name = document.getElementById('f-name').value.trim();
+    let url = document.getElementById('f-url').value.trim();
+    if (!name || !url) { showToast('Please fill in both fields.'); return; }
+    if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+    entries.push({ id: nextId++, name, url });
+    closeModal();
+    updateCounts();
+    renderRows();
+    showToast(`✓ ${name} added to Trust Atlas`);
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2800);
+  }
+
+  // ── Init ──
+  updateCounts();
+  renderRows();
+</script>
+</body>
+</html>
